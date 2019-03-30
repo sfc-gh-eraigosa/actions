@@ -6,7 +6,7 @@ set -o pipefail
 source "$(dirname $0)/source/checks.sh"
 
 check_credentials
-# check_events_json
+check_events_json
 
 if [ -f "$(pwd)/VERSION" ]; then
   echo 'VERSION file found'
