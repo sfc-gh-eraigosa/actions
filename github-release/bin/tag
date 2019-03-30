@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+source "$(dirname $0)/source/checks.sh"
+
+check_credentials
+check_events_json
+
+if [ -f "$(pwd)/VERSION" ]; then
+  echo 'VERSION file found'
+else
+  echo 'Generate version'
+fi
+
+echo 'git tag ...'
+echo 'git push --tags'
+echo ${GITHUB_EVENT_PATH}
+
+cat "${GITHUB_EVENT_PATH}" | jq --raw-output '.'
+
+echo 'done publishing a new tag'
