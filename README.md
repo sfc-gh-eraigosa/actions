@@ -2,6 +2,7 @@
 A repo for some general actions.
 
 ## Catalog
+- [github-release](/github-release) publish a GitHub release
 
 ## Contributing
 
