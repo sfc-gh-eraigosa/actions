@@ -15,7 +15,7 @@ check_credentials() {
 check_events_json() {
 
     if [[ ! -f "${GITHUB_EVENT_PATH}" ]]; then
-        echo "Cannot find Github events file at ${GITHUB_EVENT_PATH}";
+        echo "GITHUB_EVENT_PATH must be set, cannot find Github events file at ${GITHUB_EVENT_PATH}";
         exit 1;
     fi
     echo "Found ${GITHUB_EVENT_PATH}";

@@ -4,20 +4,32 @@ set -e
 set -o pipefail
 
 source "$(dirname $0)/source/checks.sh"
+source "$(dirname $0)/source/events.sh"
+
+
+get_version() {
+    _version=$(cat "$(pwd)/VERSION")
+}
+
+git_setup_remote() {
+  remote="${1:-tagorigin}"
+  url="$(get_git_url)"
+  url="$(echo $url | sed 's/:\/\//:\/\/'$(get_pusher_name)':'$GITHUB_TOKEN'@/')"
+  url="$(echo $url | sed 's/git:\/\//https:\/\//')"
+  git remote add "${remote}" "$url" || exit 1
+  echo "${remote}"
+}
 
 check_credentials
 check_events_json
 
-if [ -f "$(pwd)/VERSION" ]; then
-  echo 'VERSION file found'
-else
-  echo 'Generate version'
+if [ ! -f "$(pwd)/VERSION" ]; then
+  echo 'place a ./VERSION file in the root, this will be used for the version'
+  exit 1
 fi
 
-echo 'git tag ...'
-echo 'git push --tags'
-echo ${GITHUB_EVENT_PATH}
-
-cat "${GITHUB_EVENT_PATH}" | jq --raw-output '.'
+git --no-pager tag --list "v$(get_version)" || git tag "v$(get_version)"
+git push "$(git_setup_remote)" tag "v$(get_version)"
+git remote rm tagorigin
 
 echo 'done publishing a new tag'
