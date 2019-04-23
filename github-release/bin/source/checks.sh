@@ -19,5 +19,4 @@ check_events_json() {
         exit 1;
     fi
     echo "Found ${GITHUB_EVENT_PATH}";
-
 }

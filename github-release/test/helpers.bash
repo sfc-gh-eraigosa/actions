@@ -3,7 +3,12 @@
 function echo_output {
   echo "# $BATS_TEST_NAME
 # ----------
-# ->  $output
+" >&3
+  for line in "${lines[@]}"
+  do
+    echo "# ->  ${line}" >&3
+  done
+  echo "
 # ----------
 " >&3
 }

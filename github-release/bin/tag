@@ -6,30 +6,44 @@ set -o pipefail
 source "$(dirname $0)/source/checks.sh"
 source "$(dirname $0)/source/events.sh"
 
-
-get_version() {
-    _version=$(cat "$(pwd)/VERSION")
+git_remote() {
+  remote="${1:-tagorigin}"
+  echo "${remote}"
 }
 
-git_setup_remote() {
-  remote="${1:-tagorigin}"
+git_remote_url() {
   url="$(get_git_url)"
   url="$(echo $url | sed 's/:\/\//:\/\/'$(get_pusher_name)':'$GITHUB_TOKEN'@/')"
   url="$(echo $url | sed 's/git:\/\//https:\/\//')"
-  git remote add "${remote}" "$url" || exit 1
-  echo "${remote}"
+  echo "${url}"
 }
 
 check_credentials
 check_events_json
 
-if [ ! -f "$(pwd)/VERSION" ]; then
-  echo 'place a ./VERSION file in the root, this will be used for the version'
-  exit 1
+# parse the command line args
+source "$(dirname $0)/source/parseargs.sh"
+
+[[ -f "$(pwd)/VERSION" ]] && _default_version=$(cat "$(pwd)/VERSION")
+require_option 'VERSION' "${_default_version}" '--set-version or $(pwd)/VERSION file'
+echo "Working with VERSION=$VERSION"
+
+_remote_name=$(git_remote)
+_remote_url=$(git_remote_url)
+
+if [[ $TESTING -eq 0 ]] ; then
+  git remote add "${_remote_name}" "${_remote_url}" || exit 1
+  git --no-pager tag --list "v${VERSION}" || git tag "v${VERSION}"
+  git push "${_remote_name}" tag "v${VERSION}"
+  git remote rm "${_remote_name}"
+else
+  echo 'Testing: these commands would run'
+  echo git remote add "${_remote_name}" "${_remote_url}"
+  echo git --no-pager tag --list "v${VERSION}"
+  echo git tag "v${VERSION}"
+  echo git push "${_remote_name}" tag "v${VERSION}"
+  echo git remote rm "${_remote_name}"
 fi
 
-git --no-pager tag --list "v$(get_version)" || git tag "v$(get_version)"
-git push "$(git_setup_remote)" tag "v$(get_version)"
-git remote rm tagorigin
-
 echo 'done publishing a new tag'
+exit 0
