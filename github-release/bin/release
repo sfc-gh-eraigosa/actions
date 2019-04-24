@@ -4,6 +4,41 @@ set -e
 set -o pipefail
 
 source "$(dirname $0)/source/checks.sh"
+source "$(dirname $0)/source/events.sh"
 
 check_credentials
 check_events_json
+
+# parse the command line args
+source "$(dirname $0)/source/parseargs.sh"
+
+[[ -f "$(pwd)/VERSION" ]] && _default_version=$(cat "$(pwd)/VERSION")
+require_option 'VERSION' "${_default_version}" '--set-version or $(pwd)/VERSION file'
+echo "Working with VERSION=$VERSION"
+
+if [[ $TESTING -eq 0 ]] ; then
+  github-release info -u "$(get_org)" -r "$(get_repo)"
+  github-release release \
+    --user "$(get_org)" \
+    --repo "$(get_repo)" \
+    --tag "v${VERSION}" \
+    --name "publish release v${VERSION}" \
+    --description "Uploading pre-release version for [commit]($(get_commit_url))." \
+    --pre-release
+  # github-release upload \
+  #   --user "$(get_org)" \
+  #   --repo "$(get_repo)" \
+  #   --tag "v${VERSION}" \
+  #   --name "gofinance-osx-amd64" \
+  #   --file bin/darwin/amd64/gofinance
+else
+  echo 'Testing: these commands would run'
+  echo github-release info -u "$(get_org)" -r "$(get_repo)"
+  echo github-release release \
+    --user "$(get_org)" \
+    --repo "$(get_repo)" \
+    --tag "v${VERSION}" \
+    --name "publish release v${VERSION}" \
+    --description "Uploading pre-release version for [commit]($(get_commit_url))." \
+    --pre-release
+fi

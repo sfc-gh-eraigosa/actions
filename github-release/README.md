@@ -30,3 +30,4 @@ action "Release" {
 - `release` : release the current repo
 - `version` : show the current `github-release` version
 - `tag` : tag up a current repo and generate the version from a `./VERSION` file if found.
+          alternatively you can specify the version with --set-version option

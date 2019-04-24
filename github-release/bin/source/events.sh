@@ -31,3 +31,7 @@ get_repo() {
 get_git_url() {
   event_raw_print '.repository.git_url'
 }
+
+get_commit_url() {
+  event_raw_print '.commits[0].url'
+}
