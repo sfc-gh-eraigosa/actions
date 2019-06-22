@@ -10,7 +10,11 @@ Inspired from https://github.com/vsoch/pull-request-action
 Still much to do, like setting up a `Dockerfile.test` and bats to go with it.
 
 - build it: `docker build -t github-release .`
-- test command: `docker run -e GITHUB_TOKEN -it --rm github-release <command>`
+- test command:
+  ```
+    docker run -e GITHUB_TOKEN \
+     -it --rm github-release <command>
+  ```
 
 ## Setup a workflow
 
@@ -26,3 +30,4 @@ action "Release" {
 - `release` : release the current repo
 - `version` : show the current `github-release` version
 - `tag` : tag up a current repo and generate the version from a `./VERSION` file if found.
+          alternatively you can specify the version with --set-version option
